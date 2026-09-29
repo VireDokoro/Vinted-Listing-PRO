@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="es" class="dark h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vinted Listing PRO - Asistente Minimalista de Ventas</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            black: '#09090b',
+                            card: '#18181b',
+                            cardHover: '#202024',
+                            border: '#27272a',
+                            borderLight: '#3f3f46',
+                            textPrimary: '#f4f4f5',
+                            textMuted: '#a1a1aa',
+                            textDark: '#71717a',
+                            accent: '#ffffff'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #09090b;
+            color: #f4f4f5;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Minimal custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46;
+        }
+
+        /* Form input clean style */
+        .input-minimal {
+            background-color: #18181b;
+            border: 1px solid #27272a;
+            color: #f4f4f5;
+            transition: all 0.15s ease;
+        }
+        .input-minimal:focus {
+            outline: none;
+            border-color: #71717a;
+            background-color: #1c1c20;
+        }
+        .input-minimal::placeholder {
+            color: #52525b;
+        }
+
+        /* Monochrome button transitions */
+        .btn-minimal {
+            background-color: #f4f4f5;
+            color: #09090b;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+        .btn-minimal:hover {
+            background-color: #ffffff;
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+        .btn-minimal:active {
+            transform: translateY(0);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #27272a;
+            color: #f4f4f5;
+            transition: all 0.15s ease;
+        }
+        .btn-outline:hover {
+            border-color: #52525b;
+            background-color: #18181b;
+        }
+
+        /* Chip buttons */
+        .chip-btn {
+            background-color: #18181b;
+            border: 1px solid #27272a;
+            color: #a1a1aa;
+            transition: all 0.12s ease;
+        }
+        .chip-btn:hover {
+            border-color: #52525b;
+            color: #f4f4f5;
+        }
+        .chip-btn.active {
+            background-color: #f4f4f5;
+            color: #09090b;
+            border-color: #f4f4f5;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="min-h-full flex flex-col justify-between selection:bg-zinc-800 selection:text-white">
+
+    <!-- Navigation Header -->
+    <header class="border-b border-zinc-800/80 bg-zinc-950/90 backdrop-blur-md sticky top-0 z-30 px-4 py-3.5">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-2.5 cursor-pointer" onclick="app.switchTab('generator')">
+                <div class="w-8 h-8 bg-zinc-100 rounded-md flex items-center justify-center text-zinc-950 font-black text-sm tracking-tighter">
+                    VP
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm tracking-wider uppercase text-zinc-100 flex items-center gap-2">
+                        Vinted Listing <span class="text-[10px] px-1.5 py-0.5 rounded border border-zinc-700 bg-zinc-900 text-zinc-400 font-mono tracking-normal">PRO</span>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Tab Navigation Switches -->
+            <nav class="flex items-center gap-1 bg-zinc-900 p-1 rounded-lg border border-zinc-800">
+                <button id="nav-tab-generator" onclick="app.switchTab('generator')" class="px-3 py-1.5 text-xs font-medium rounded-md transition text-zinc-100 bg-zinc-800 shadow-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-pen-to-square text-[11px]"></i>
+                    <span class="hidden sm:inline">Generador</span>
+                </button>
+                <button id="nav-tab-calculator" onclick="app.switchTab('calculator')" class="px-3 py-1.5 text-xs font-medium rounded-md transition text-zinc-400 hover:text-zinc-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-calculator text-[11px]"></i>
+                    <span class="hidden sm:inline">Calculadora</span>
+                </button>
+                <button id="nav-tab-drafts" onclick="app.switchTab('drafts')" class="px-3 py-1.5 text-xs font-medium rounded-md transition text-zinc-400 hover:text-zinc-200 flex items-center gap-1.5 relative">
+                    <i class="fa-solid fa-bookmark text-[11px]"></i>
+                    <span class="hidden sm:inline">Borradores</span>
+                    <span id="draftsBadge" class="hidden w-4 h-4 rounded-full bg-zinc-100 text-zinc-950 text-[9px] font-bold flex items-center justify-center">0</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main App Layout -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6">
+
+        <!-- ================= TAB 1: GENERATOR ================= -->
+        <div id="tab-generator" class="space-y-6">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- Left Form Column -->
+                <div class="lg:col-span-6 space-y-5 bg-zinc-900/60 border border-zinc-800 rounded-xl p-5">
+                    
+                    <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                        <h2 class="text-xs font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-zinc-500"></i> Datos del Artículo
+                        </h2>
+                        <button onclick="app.resetForm()" class="text-[11px] text-zinc-500 hover:text-zinc-300 transition flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> Limpiar
+                        </button>
+                    </div>
+
+                    <form id="listingForm" onsubmit="event.preventDefault();" class="space-y-4">
+                        
+                        <!-- Prenda Type -->
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-300 mb-1.5">Tipo de Prenda / Nombre *</label>
+                            <input type="text" id="inputPrenda" placeholder="Ej: Sudadera con Capucha, Camiseta, Zapatillas Dunk" class="w-full px-3 py-2.5 rounded-lg input-minimal text-xs" oninput="app.updatePreview()">
+                        </div>
+
+                        <!-- Brand Input + Chips -->
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-300 mb-1.5">Marca</label>
+                            <input type="text" id="inputMarca" placeholder="Ej: Nike, Stussy, Corteiz, Carhartt" class="w-full px-3 py-2.5 rounded-lg input-minimal text-xs mb-2" oninput="app.updatePreview()">
+                            <!-- Brand Chips -->
+                            <div class="flex flex-wrap gap-1.5" id="brandChips">
+                                <button type="button" onclick="app.setQuickField('inputMarca', 'Nike')" class="chip-btn px-2 py-0.5 rounded text-[11px]">Nike</button>
+                                <button type="button" onclick="app.setQuickField('inputMarca', 'Adidas')" class="chip-btn px-2 py-0.5 rounded text-[11px]">Adidas</button>
+                                <button type="button" onclick="app.setQuickField('inputMarca', 'Stussy')" class="chip-btn px-2 py-0.5 rounded text-[11px]">Stussy</button>
+                                <button type="button" onclick="app.setQuickField('inputMarca', 'Corteiz')" class="chip-btn px-2 py-0.5 rounded text-[11px]">Corteiz</button>
+                                <button type="button" onclick="app.setQuickField('inputMarca', 'Carhartt')" class="chip-btn px-2 py-0.5 rounded text-[11px]">Carhartt</button>
+                                <button type="button" onclick="app.setQuickField('inputMarca', 'Zara')" class="chip-btn px-2 py-0.5 rounded text-[11px]">Zara</button>
+                                <button type="button" onclick="app.setQuickField('inputMarca', 'Trapstar')" class="chip-btn px-2 py-0.5 rounded text-[11px]">Trapstar</button>
+                                <button type="button" onclick="app.setQuickField('inputMarca', 'Jordan')" class="chip-btn px-2 py-0.5 rounded text-[11px]">Jordan</button>
+                            </div>
+                        </div>
+
+                        <!-- Size & Condition Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- Size -->
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-300 mb-1.5">Talla</label>
+                                <input type="text" id="inputTalla" placeholder="Ej: M, L, 42.5" class="w-full px-3 py-2.5 rounded-lg input-minimal text-xs mb-1.5" oninput="app.updatePreview()">
+                                <div class="flex flex-wrap gap-1">
+                                    <button type="button" onclick="app.setQuickField('inputTalla', 'XS')" class="chip-btn px-1.5 py-0.5 rounded text-[10px]">XS</button>
+                                    <button type="button" onclick="app.setQuickField('inputTalla', 'S')" class="chip-btn px-1.5 py-0.5 rounded text-[10px]">S</button>
+                                    <button type="button" onclick="app.setQuickField('inputTalla', 'M')" class="chip-btn px-1.5 py-0.5 rounded text-[10px]">M</button>
+                                    <button type="button" onclick="app.setQuickField('inputTalla', 'L')" class="chip-btn px-1.5 py-0.5 rounded text-[10px]">L</button>
+                                    <button type="button" onclick="app.setQuickField('inputTalla', 'XL')" class="chip-btn px-1.5 py-0.5 rounded text-[10px]">XL</button>
+                                </div>
+                            </div>
+
+                            <!-- Condition -->
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-300 mb-1.5">Estado</label>
+                                <select id="inputEstado" class="w-full px-3 py-2.5 rounded-lg input-minimal text-xs cursor-pointer" onchange="app.updatePreview()">
+                                    <option value="Nuevo con etiqueta">Nuevo con etiqueta (10/10)</option>
+                                    <option value="Nuevo sin etiqueta">Nuevo sin etiqueta (10/10)</option>
+                                    <option value="Muy bueno" selected>Muy bueno (9/10)</option>
+                                    <option value="Bueno">Bueno (8/10)</option>
+                                    <option value="Satisfactorio">Satisfactorio (7/10)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Color & Fit Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- Color -->
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-300 mb-1.5">Color principal</label>
+                                <input type="text" id="inputColor" placeholder="Ej: Negro, Blanco, Azul marino" class="w-full px-3 py-2.5 rounded-lg input-minimal text-xs" oninput="app.updatePreview()">
+                            </div>
+
+                            <!-- Fit / Corte -->
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-300 mb-1.5">Corte / Fit</label>
+                                <select id="inputCorte" class="w-full px-3 py-2.5 rounded-lg input-minimal text-xs cursor-pointer" onchange="app.updatePreview()">
+                                    <option value="Regular fit" selected>Regular fit (Standard)</option>
+                                    <option value="Oversized / Ancho">Oversized / Ancho</option>
+                                    <option value="Slim fit / Ajustado">Slim fit / Ajustado</option>
+                                    <option value="Boxy fit">Boxy fit (Corto y ancho)</option>
+                                    <option value="Relaxed fit">Relaxed fit</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Price & Purchase Cost -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-300 mb-1.5">Precio Venta (€)</label>
+                                <input type="number" id="inputPrecio" placeholder="35" class="w-full px-3 py-2.5 rounded-lg input-minimal text-xs font-mono" oninput="app.updatePreview()">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-300 mb-1.5">Coste compra (€) <span class="text-zinc-500 font-normal">(Opcional)</span></label>
+                                <input type="number" id="inputCoste" placeholder="15" class="w-full px-3 py-2.5 rounded-lg input-minimal text-xs font-mono" oninput="app.updatePreview()">
+                            </div>
+                        </div>
+
+                        <!-- Optional Measures & Notes -->
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-300 mb-1.5">Medidas o Notas opcionales</label>
+                            <input type="text" id="inputMedidas" placeholder="Ej: Ancho sisa: 54cm | Largo: 70cm" class="w-full px-3 py-2.5 rounded-lg input-minimal text-xs" oninput="app.updatePreview()">
+                        </div>
+
+                        <!-- Tone Selector -->
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-300 mb-1.5">Estilo / Tono de la descripción</label>
+                            <div class="grid grid-cols-3 gap-1.5">
+                                <button type="button" id="toneBtn-streetwear" onclick="app.setTone('streetwear')" class="chip-btn active px-2 py-2 rounded-lg text-[11px] text-center font-medium">
+                                    Directo / Urban
+                                </button>
+                                <button type="button" id="toneBtn-minimal" onclick="app.setTone('minimal')" class="chip-btn px-2 py-2 rounded-lg text-[11px] text-center font-medium">
+                                    Minimalista
+                                </button>
+                                <button type="button" id="toneBtn-top" onclick="app.setTone('top')" class="chip-btn px-2 py-2 rounded-lg text-[11px] text-center font-medium">
+                                    Vendedor Top
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Action Controls -->
+                        <div class="pt-2 flex gap-2">
+                            <button type="button" onclick="app.saveDraft()" class="w-full py-2.5 rounded-lg btn-outline text-xs flex items-center justify-center gap-2">
+                                <i class="fa-regular fa-bookmark"></i> Guardar Borrador
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right Live Preview Column -->
+                <div class="lg:col-span-6 space-y-4 sticky top-20">
+                    
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4 shadow-2xl">
+                        
+                        <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                            <h2 class="text-xs font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                                <i class="fa-solid fa-eye text-zinc-500"></i> Vista Previa Anuncio
+                            </h2>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-zinc-500 font-mono" id="charCount">0 caracteres</span>
+                            </div>
+                        </div>
+
+                        <!-- Generated Title Display -->
+                        <div class="space-y-1">
+                            <div class="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Título sugerido</div>
+                            <div class="flex items-center justify-between bg-zinc-950 border border-zinc-800/80 rounded-lg p-2.5">
+                                <span id="previewTitle" class="text-xs font-semibold text-zinc-100 truncate pr-2">Sudadera Nike - Talla M</span>
+                                <button onclick="app.copyToClipboard('previewTitle', 'Título copiado')" class="text-xs text-zinc-400 hover:text-zinc-100 transition px-2 py-1 rounded bg-zinc-800/60 hover:bg-zinc-800 shrink-0">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Main Generated Description Box -->
+                        <div class="space-y-1">
+                            <div class="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Descripción completa</div>
+                            <div class="relative">
+                                <textarea id="previewTextarea" rows="12" readonly class="w-full p-3.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 font-mono leading-relaxed resize-none focus:outline-none focus:border-zinc-700"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Action Copy Buttons -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            <button onclick="app.copyMainDescription()" class="py-3 px-4 rounded-lg btn-minimal text-xs flex items-center justify-center gap-2 shadow-lg">
+                                <i class="fa-solid fa-copy"></i>
+                                <span>Copiar Descripción</span>
+                            </button>
+                            <button onclick="app.copyFullListing()" class="py-3 px-4 rounded-lg btn-outline text-xs flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-layer-group"></i>
+                                <span>Copiar Todo (Título + Texto)</span>
+                            </button>
+                        </div>
+
+                        <!-- Quick Tips Box -->
+                        <div class="p-3 bg-zinc-950/60 border border-zinc-800/60 rounded-lg text-[11px] text-zinc-400 flex items-start gap-2.5">
+                            <i class="fa-solid fa-lightbulb text-zinc-500 mt-0.5"></i>
+                            <p class="leading-relaxed">
+                                Tip Vinted: Saca fotos con luz natural, muestra las etiquetas claras y responde rápido a los mensajes para mantener valoración 5 estrellas.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: CALCULATOR ================= -->
+        <div id="tab-calculator" class="hidden space-y-6">
+            
+            <div class="max-w-3xl mx-auto space-y-6">
+                
+                <!-- Calculator Inputs Header -->
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-5">
+                    <div class="border-b border-zinc-800 pb-3">
+                        <h2 class="text-xs font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-zinc-500"></i> Calculadora de Márgenes y Ofertas
+                        </h2>
+                        <p class="text-xs text-zinc-500 mt-1">Calcula tu beneficio neto exacto al aceptar ofertas de compradores en Vinted.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-300 mb-1.5">Precio de Venta Anunciado (€)</label>
+                            <input type="number" id="calcPrice" value="40" placeholder="0.00" class="w-full px-3 py-2.5 rounded-lg input-minimal text-sm font-mono" oninput="app.calculateOffers()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-300 mb-1.5">Coste de Compra (€)</label>
+                            <input type="number" id="calcCost" value="15" placeholder="0.00" class="w-full px-3 py-2.5 rounded-lg input-minimal text-sm font-mono" oninput="app.calculateOffers()">
+                        </div>
+                    </div>
+
+                    <!-- Main Margin Summary Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                        <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-3">
+                            <div class="text-[10px] font-mono text-zinc-500 uppercase">Beneficio Precio Base</div>
+                            <div id="calcProfitBase" class="text-base font-bold font-mono text-zinc-100 mt-1">+25.00 €</div>
+                        </div>
+                        <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-3">
+                            <div class="text-[10px] font-mono text-zinc-500 uppercase">Margen ROI</div>
+                            <div id="calcRoiBase" class="text-base font-bold font-mono text-zinc-100 mt-1">166.7 %</div>
+                        </div>
+                        <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-3 col-span-2 sm:col-span-1">
+                            <div class="text-[10px] font-mono text-zinc-500 uppercase">Mínimo Recomendado</div>
+                            <div id="calcMinPrice" class="text-base font-bold font-mono text-zinc-300 mt-1">20.00 €</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Offers Breakdown Table -->
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                        Desglose al recibir ofertas comunes
+                    </h3>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead>
+                                <tr class="border-b border-zinc-800 text-zinc-500">
+                                    <th class="pb-2 font-normal">Descuento</th>
+                                    <th class="pb-2 font-normal">Precio Oferta</th>
+                                    <th class="pb-2 font-normal">Ganancia Neta</th>
+                                    <th class="pb-2 font-normal text-right">Margen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="offersTableBody" class="divide-y divide-zinc-800/60">
+                                <!-- Dynamic breakdown rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: DRAFTS ================= -->
+        <div id="tab-drafts" class="hidden space-y-6">
+            <div class="max-w-4xl mx-auto space-y-4">
+                
+                <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                    <div>
+                        <h2 class="text-xs font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                            <i class="fa-solid fa-bookmark text-zinc-500"></i> Borradores Guardados
+                        </h2>
+                        <p class="text-xs text-zinc-500 mt-0.5">Tus descripciones guardadas localmente en este dispositivo.</p>
+                    </div>
+                    <button onclick="app.clearAllDrafts()" class="text-xs text-zinc-500 hover:text-zinc-300 transition">
+                        Borrar todos
+                    </button>
+                </div>
+
+                <!-- Drafts Container -->
+                <div id="draftsListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Dynamic Draft Cards -->
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Minimalist Footer -->
+    <footer class="border-t border-zinc-800/80 py-4 px-4 text-center text-xs text-zinc-600">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>Vinted Listing PRO • Asistente de ventas minimalista</span>
+            <span class="font-mono text-[11px] text-zinc-500">100% Privado • Almacenamiento Local</span>
+        </div>
+    </footer>
+
+    <!-- Toast Confirmation Banner -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-200 ease-out bg-zinc-100 text-zinc-950 px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3 text-xs font-semibold">
+        <i class="fa-solid fa-circle-check text-zinc-900" id="toastIcon"></i>
+        <span id="toastMessage">Copiado al portapapeles</span>
+    </div>
+
+    <!-- Hidden Textarea for fallback clipboard operations -->
+    <textarea id="hiddenCopyBuffer" class="sr-only"></textarea>
+
+    <!-- Application Logic Javascript -->
+    <script>
+        class VintedApp {
+            constructor() {
+                this.currentTab = 'generator';
+                this.currentTone = 'streetwear';
+                this.drafts = JSON.parse(localStorage.getItem('vinted_pro_drafts') || '[]');
+            }
+
+            init() {
+                this.updateDraftsBadge();
+                this.updatePreview();
+                this.calculateOffers();
+            }
+
+            switchTab(tabName) {
+                this.currentTab = tabName;
+                
+                ['generator', 'calculator', 'drafts'].forEach(tab => {
+                    const el = document.getElementById(`tab-${tab}`);
+                    const navEl = document.getElementById(`nav-tab-${tab}`);
+                    
+                    if (tab === tabName) {
+                        el.classList.remove('hidden');
+                        navEl.className = "px-3 py-1.5 text-xs font-medium rounded-md transition text-zinc-100 bg-zinc-800 shadow-sm flex items-center gap-1.5";
+                    } else {
+                        el.classList.add('hidden');
+                        navEl.className = "px-3 py-1.5 text-xs font-medium rounded-md transition text-zinc-400 hover:text-zinc-200 flex items-center gap-1.5";
+                    }
+                });
+
+                if (tabName === 'drafts') {
+                    this.renderDraftsList();
+                }
+            }
+
+            setTone(tone) {
+                this.currentTone = tone;
+                ['streetwear', 'minimal', 'top'].forEach(t => {
+                    const btn = document.getElementById(`toneBtn-${t}`);
+                    if (t === tone) {
+                        btn.className = "chip-btn active px-2 py-2 rounded-lg text-[11px] text-center font-medium";
+                    } else {
+                        btn.className = "chip-btn px-2 py-2 rounded-lg text-[11px] text-center font-medium";
+                    }
+                });
+                this.updatePreview();
+            }
+
+            setQuickField(fieldId, value) {
+                const el = document.getElementById(fieldId);
+                if (el) {
+                    el.value = value;
+                    this.updatePreview();
+                }
+            }
+
+            getFormData() {
+                return {
+                    prenda: document.getElementById('inputPrenda').value.trim(),
+                    marca: document.getElementById('inputMarca').value.trim(),
+                    talla: document.getElementById('inputTalla').value.trim(),
+                    estado: document.getElementById('inputEstado').value,
+                    color: document.getElementById('inputColor').value.trim(),
+                    corte: document.getElementById('inputCorte').value,
+                    precio: document.getElementById('inputPrecio').value.trim(),
+                    coste: document.getElementById('inputCoste').value.trim(),
+                    medidas: document.getElementById('inputMedidas').value.trim()
+                };
+            }
+
+            generateDescriptionText(data) {
+                const prenda = data.prenda || 'Prenda';
+                const marca = data.marca ? data.marca : '';
+                const talla = data.talla ? data.talla : 'S/T';
+                const estado = data.estado;
+                const color = data.color ? data.color : '';
+                const corte = data.corte;
+                const medidas = data.medidas ? data.medidas : '';
+
+                let text = '';
+
+                if (this.currentTone === 'streetwear') {
+                    text += `🔥 ${prenda} ${marca}\n\n`;
+                    text += `▪️ Talla: ${talla}\n`;
+                    text += `▪️ Estado: ${estado}\n`;
+                    if (color) text += `▪️ Color: ${color}\n`;
+                    text += `▪️ Fit: ${corte}\n`;
+                    if (medidas) text += `▪️ Medidas: ${medidas}\n`;
+                    text += `\n📦 Envío súper rápido (24/48h).\n`;
+                    text += `💯 Artículo 100% original. Revisa mis valoraciones.\n`;
+                    text += `💬 Escríbeme cualquier duda o para ofertas razonables.`;
+                } 
+                else if (this.currentTone === 'minimal') {
+                    text += `${prenda} - ${marca}\n\n`;
+                    text += `Talla: ${talla}\n`;
+                    text += `Estado: ${estado}\n`;
+                    if (color) text += `Color: ${color}\n`;
+                    text += `Fit: ${corte}\n`;
+                    if (medidas) text += `Medidas: ${medidas}\n`;
+                    text += `\n* Envío rápido y embalaje cuidado.\n`;
+                    text += `* Producto original.`;
+                } 
+                else if (this.currentTone === 'top') {
+                    text += `✨ ${prenda} ${marca} en Excelente Estado\n\n`;
+                    text += `Detalles del artículo:\n`;
+                    text += `• Marca: ${marca || 'Ver fotos'}\n`;
+                    text += `• Talla: ${talla}\n`;
+                    text += `• Condición: ${estado}\n`;
+                    if (color) text += `• Color: ${color}\n`;
+                    text += `• Corte: ${corte}\n`;
+                    if (medidas) text += `• Medidas exactas: ${medidas}\n`;
+                    text += `\n🔒 Vendedor Top (+5 estrellas). Se envía perfectamente empaquetado el mismo día o al día siguiente.`;
+                }
+
+                // Append generated hashtags
+                const hashtags = this.generateHashtags(data);
+                if (hashtags) {
+                    text += `\n\n${hashtags}`;
+                }
+
+                return text;
+            }
+
+            generateHashtags(data) {
+                const tags = [];
+                if (data.marca) tags.push(`#${data.marca.toLowerCase().replace(/\s+/g, '')}`);
+                if (data.prenda) {
+                    const firstWord = data.prenda.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+                    if (firstWord) tags.push(`#${firstWord}`);
+                }
+                if (data.talla) tags.push(`#talla${data.talla.toLowerCase().replace(/[^a-z0-9]/g, '')}`);
+                tags.push('#vinted', '#streetwear', '#fashion', '#secondhand');
+
+                return tags.join(' ');
+            }
+
+            generateTitle(data) {
+                const prenda = data.prenda || 'Artículo';
+                const marca = data.marca ? `${data.marca} ` : '';
+                const talla = data.talla ? ` - Talla ${data.talla}` : '';
+                return `${prenda} ${marca}${talla}`;
+            }
+
+            updatePreview() {
+                const data = this.getFormData();
+                const title = this.generateTitle(data);
+                const desc = this.generateDescriptionText(data);
+
+                document.getElementById('previewTitle').innerText = title;
+                
+                const textarea = document.getElementById('previewTextarea');
+                textarea.value = desc;
+
+                document.getElementById('charCount').innerText = `${desc.length} caracteres`;
+            }
+
+            resetForm() {
+                document.getElementById('listingForm').reset();
+                this.updatePreview();
+                this.showToast('Formulario limpiado');
+            }
+
+            copyToClipboard(elementId, customMsg) {
+                let textToCopy = '';
+                const el = document.getElementById(elementId);
+                
+                if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
+                    textToCopy = el.value;
+                } else {
+                    textToCopy = el.innerText;
+                }
+
+                this.executeCopy(textToCopy, customMsg || 'Copiado al portapapeles');
+            }
+
+            copyMainDescription() {
+                const desc = document.getElementById('previewTextarea').value;
+                this.executeCopy(desc, 'Descripción copiada');
+            }
+
+            copyFullListing() {
+                const title = document.getElementById('previewTitle').innerText;
+                const desc = document.getElementById('previewTextarea').value;
+                const fullText = `TÍTULO:\n${title}\n\nDESCRIPCIÓN:\n${desc}`;
+                
+                this.executeCopy(fullText, 'Título + Descripción copiados');
+            }
+
+            executeCopy(text, successMessage) {
+                const buffer = document.getElementById('hiddenCopyBuffer');
+                buffer.value = text;
+                buffer.select();
+                buffer.setSelectionRange(0, 99999);
+
+                try {
+                    document.execCommand('copy');
+                    this.showToast(successMessage);
+                } catch (err) {
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(text).then(() => {
+                            this.showToast(successMessage);
+                        });
+                    }
+                }
+            }
+
+            calculateOffers() {
+                const priceInput = parseFloat(document.getElementById('calcPrice').value) || 0;
+                const costInput = parseFloat(document.getElementById('calcCost').value) || 0;
+
+                const profitBase = priceInput - costInput;
+                const roiBase = costInput > 0 ? ((profitBase / costInput) * 100).toFixed(1) : '100.0';
+                const minPrice = (costInput * 1.3).toFixed(2); // 30% min profit over cost
+
+                document.getElementById('calcProfitBase').innerText = `${profitBase >= 0 ? '+' : ''}${profitBase.toFixed(2)} €`;
+                document.getElementById('calcRoiBase').innerText = `${roiBase}%`;
+                document.getElementById('calcMinPrice').innerText = `${minPrice} €`;
+
+                // Calculate discount tiers
+                const tiers = [0, 5, 10, 15, 20, 25, 30, 40];
+                const tableBody = document.getElementById('offersTableBody');
+                
+                tableBody.innerHTML = tiers.map(percent => {
+                    const discountAmount = (priceInput * (percent / 100));
+                    const offerPrice = priceInput - discountAmount;
+                    const netProfit = offerPrice - costInput;
+                    const marginPercent = offerPrice > 0 ? ((netProfit / offerPrice) * 100).toFixed(0) : 0;
+
+                    const profitColorClass = netProfit >= 0 ? 'text-zinc-200' : 'text-zinc-500';
+
+                    return `
+                        <tr class="hover:bg-zinc-950/40 transition">
+                            <td class="py-2.5 font-sans font-medium text-zinc-300">${percent === 0 ? 'Precio Original' : `-${percent}%`}</td>
+                            <td class="py-2.5 font-bold text-zinc-100">${offerPrice.toFixed(2)} €</td>
+                            <td class="py-2.5 ${profitColorClass}">${netProfit >= 0 ? '+' : ''}${netProfit.toFixed(2)} €</td>
+                            <td class="py-2.5 text-right text-zinc-400">${marginPercent}%</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            saveDraft() {
+                const data = this.getFormData();
+                if (!data.prenda) {
+                    this.showToast('Añade un tipo de prenda antes de guardar');
+                    return;
+                }
+
+                const draft = {
+                    id: Date.now(),
+                    date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }),
+                    title: this.generateTitle(data),
+                    formData: data,
+                    tone: this.currentTone
+                };
+
+                this.drafts.unshift(draft);
+                localStorage.setItem('vinted_pro_drafts', JSON.stringify(this.drafts));
+                
+                this.updateDraftsBadge();
+                this.showToast('Borrador guardado');
+            }
+
+            renderDraftsList() {
+                const container = document.getElementById('draftsListContainer');
+                if (!container) return;
+
+                if (this.drafts.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-full py-12 text-center text-zinc-500 space-y-2 border border-dashed border-zinc-800 rounded-xl">
+                            <i class="fa-regular fa-bookmark text-2xl"></i>
+                            <p class="text-xs">No tienes borradores guardados aún.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.drafts.map(draft => `
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono mb-1">
+                                <span>${draft.date}</span>
+                                <span>${draft.formData.precio ? draft.formData.precio + ' €' : ''}</span>
+                            </div>
+                            <h3 class="text-sm font-bold text-zinc-100 truncate">${draft.title}</h3>
+                            <p class="text-xs text-zinc-400 mt-1 line-clamp-2 font-mono bg-zinc-950 p-2 rounded border border-zinc-800/80">
+                                ${this.generateDescriptionText(draft.formData)}
+                            </p>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-2 border-t border-zinc-800/60">
+                            <button onclick="app.loadDraft(${draft.id})" class="w-full py-1.5 rounded btn-outline text-xs flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-folder-open text-[11px]"></i> Cargar
+                            </button>
+                            <button onclick="app.deleteDraft(${draft.id})" class="px-2.5 py-1.5 rounded border border-zinc-800 text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 text-xs transition">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            loadDraft(id) {
+                const draft = this.drafts.find(d => d.id === id);
+                if (!draft) return;
+
+                const data = draft.formData;
+                document.getElementById('inputPrenda').value = data.prenda || '';
+                document.getElementById('inputMarca').value = data.marca || '';
+                document.getElementById('inputTalla').value = data.talla || '';
+                document.getElementById('inputEstado').value = data.estado || 'Muy bueno';
+                document.getElementById('inputColor').value = data.color || '';
+                document.getElementById('inputCorte').value = data.corte || 'Regular fit';
+                document.getElementById('inputPrecio').value = data.precio || '';
+                document.getElementById('inputCoste').value = data.coste || '';
+                document.getElementById('inputMedidas').value = data.medidas || '';
+
+                this.setTone(draft.tone || 'streetwear');
+                this.switchTab('generator');
+                this.showToast('Borrador cargado');
+            }
+
+            deleteDraft(id) {
+                this.drafts = this.drafts.filter(d => d.id !== id);
+                localStorage.setItem('vinted_pro_drafts', JSON.stringify(this.drafts));
+                this.updateDraftsBadge();
+                this.renderDraftsList();
+                this.showToast('Borrador eliminado');
+            }
+
+            clearAllDrafts() {
+                if (this.drafts.length === 0) return;
+                this.drafts = [];
+                localStorage.setItem('vinted_pro_drafts', JSON.stringify([]));
+                this.updateDraftsBadge();
+                this.renderDraftsList();
+                this.showToast('Todos los borradores eliminados');
+            }
+
+            updateDraftsBadge() {
+                const badge = document.getElementById('draftsBadge');
+                if (badge) {
+                    if (this.drafts.length > 0) {
+                        badge.innerText = this.drafts.length;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                }
+            }
+
+            showToast(msg) {
+                const toast = document.getElementById('toast');
+                const toastMsg = document.getElementById('toastMessage');
+
+                if (toast && toastMsg) {
+                    toastMsg.innerText = msg;
+                    toast.classList.remove('translate-y-20', 'opacity-0');
+
+                    setTimeout(() => {
+                        toast.classList.add('translate-y-20', 'opacity-0');
+                    }, 2400);
+                }
+            }
+        }
+
+        // Initialize single instance
+        let app;
+        window.addEventListener('DOMContentLoaded', () => {
+            app = new VintedApp();
+            app.init();
+        });
+    </script>
+</body>
+</html>
